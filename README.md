@@ -35,10 +35,11 @@
 ## Repository Structure
 ```bash
 .
-├── 00_preprocessing/      # Data preprocessing scripts
-├── 01_ml_models/         # Machine learning models for target identification
-├── 02_tcr_ccc_analysis/  # TCR and cell-cell communication analysis
-├── 03_atac_analysis/     # ATAC-seq data analysis
-├── 04_hichip_analysis/   # HiChIP data analysis
-└── 05_visualization/     # Visualization scripts and supplementary materials
+├── 00_preprocessing/      # Data preprocessing and quality control
+├── 02_visualization/      # Data visualization scripts
+├── 03_ml_models/         # Machine learning models for target identification
+├── 04_tcr_ccc_analysis/  # TCR sequencing and cell-cell communication analysis
+├── 05_atac_analysis/     # ATAC-seq data processing and analysis
+├── 06_hichip_analysis/   # HiChIP data processing and analysis
+└── 07_supplementary/     # Supplementary analysis and materials
 ```

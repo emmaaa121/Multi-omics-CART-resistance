@@ -12,30 +12,32 @@ from sklearn.metrics import (accuracy_score, classification_report, balanced_acc
 import optuna
 import os
 
-# GPU configuration
 os.environ['CUDA_VISIBLE_DEVICES'] = '2' 
 os.environ['XLA_FLAGS'] = '--xla_gpu_cuda_data_dir=/usr/lib/cuda'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Data loading and preprocessing
+# Set random seeds for reproducibility
+torch.manual_seed(42)
+np.random.seed(42)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed(42)
+    torch.backends.cudnn.deterministic = True
+
 adata = sc.read_h5ad('/home/emma/data/CART/Harvard_Stanford_infusion_D7sorted_CD3E_CD4_CD8A_highly_variable_combat_CR_NR.h5ad')
 adata = adata[adata.obs['cell_type'] == 'CD4'].copy()
-adata = adata[adata.obs['leiden_0.9'].isin(['3', '6', '10', '11', '12', '13'])].copy()
+adata = adata[adata.obs['leiden_0.9'].isin(['1', '3', '6', '10', '12', '13'])].copy()
 
-gene_names = pd.read_csv('/home/emma/result/CART/CD3E_CD4_high_confidence_clusters_CART_response_diff_result_last.csv')['names']
+gene_names = pd.read_csv('/home/emma/result/CART/CD3E_CD4_high_confidence_clusters_CART_response_diff_result.csv')['names']
 genes_to_use = [gene for gene in gene_names if gene in adata.var_names and gene not in ['CD8A', 'CD8B']]
 # Extract matrix and labels
 X = adata[:, genes_to_use].X
 X = X.toarray() if not isinstance(X, np.ndarray) else X
 y = np.where(adata.obs['response'].values == 'CR', 0, 1)
-
-# Print dataset dimensions
 print("\nDataset Summary:")
 print(f"Total samples: {X.shape[0]}")
 print(f"Number of features: {X.shape[1]}")
 print(f"Class distribution: {np.bincount(y)}")
 
-# First split into train_val and test
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -328,7 +330,7 @@ with torch.no_grad():
     print(classification_report(y_test_tensor.cpu().numpy(), test_pred_binary.cpu().numpy(), digits=4))
 
 # Save model and artifacts
-save_path = '/home/emma/data/CART/CD4_MLP_complete_model_logits.pth'
+save_path = '/home/emma/data/CART/CD4_MLP_complete_model_logits_newCluster.pth'
 torch.save({
     'model_state_dict': final_model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
@@ -346,7 +348,7 @@ torch.save({
 }, save_path)
 
 # Save scaler separately
-scaler_path = '/home/emma/data/CART/CD4_MLP_scaler_logits.pkl'
+scaler_path = '/home/emma/data/CART/CD4_MLP_scaler_logits_newCluster.pkl'
 joblib.dump(final_scaler, scaler_path)  # Use final_scaler instead of scaler
 
 print(f"\nModel and training history saved to {save_path}")
@@ -361,6 +363,6 @@ for param, value in best_params.items():
     print(f"  {param}: {value}")
 
 # Save the study results
-study_path = '/home/emma/result/CART/CD4_MLP_study_results_logits.pkl'
+study_path = '/home/emma/result/CART/CD4_MLP_study_results_logits_newCluster.pkl'
 joblib.dump(study, study_path)
 print(f"\nStudy results saved to {study_path}")

@@ -11,11 +11,9 @@ import matplotlib.pyplot as plt
 import h5py
 import os
 
-# GPU configuration
 os.environ['CUDA_VISIBLE_DEVICES'] = '2' 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Neural Network Model definition (must match the saved model architecture)
 class NeuralNet(nn.Module):
     def __init__(self, input_size, hidden_layers, dropout_rates):
         super(NeuralNet, self).__init__()
@@ -41,7 +39,6 @@ class NeuralNet(nn.Module):
             return torch.sigmoid(logits[:, 1:2])
         return logits
 
-# Load data
 print("Loading data...")
 adata = sc.read_h5ad('/home/emma/data/CART/Harvard_Stanford_infusion_D7sorted_CD3E_CD4_CD8A_highly_variable_combat_CR_NR.h5ad')
 adata = adata[adata.obs['cell_type'] == 'CD8'].copy()
@@ -50,12 +47,10 @@ adata = adata[adata.obs['leiden_0.9'].isin(['0', '1', '4', '7', '9', '10', '11',
 gene_names = pd.read_csv('/home/emma/result/CART/CD3E_CD4_high_confidence_clusters_CART_response_diff_result_last.csv')['names']
 genes_to_use = [gene for gene in gene_names if gene in adata.var_names and gene not in ['CD8A', 'CD8B']]  # Exclude CD8A and CD8B
 
-
 X = adata[:, genes_to_use].X
 X = X.toarray() if not isinstance(X, np.ndarray) else X
 y = np.where(adata.obs['response'].values == 'CR', 0, 1)
 
-# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -130,22 +125,9 @@ with h5py.File(shap_values_path, 'w') as hf:
 print("Generating plots...")
 plt.figure(figsize=(12, 8))
 
-# Ensure feature names match shap_values
-genes_to_use = list(genes_to_use)
-assert len(genes_to_use) == shap_values_final.shape[1], "Mismatch in feature names and SHAP values dimensions"
-
-# Debugging output
-print("Type of genes_to_use:", type(genes_to_use))
-print("Number of features:", len(genes_to_use))
-print("SHAP values shape:", shap_values_final.shape)
-
 # Check and fix SHAP values shape
 if len(shap_values_final.shape) == 3 and shap_values_final.shape[-1] == 1:
     shap_values_final = shap_values_final.squeeze(-1)  # Remove the last dimension
-
-# Debugging output
-print("Corrected SHAP values shape:", shap_values_final.shape)
-
 
 shap.summary_plot(
     shap_values_final,

@@ -23,7 +23,6 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed(42)
     torch.backends.cudnn.deterministic = True
 
-# Data loading and preprocessing
 adata = sc.read_h5ad('/home/emma/data/CART/Harvard_Stanford_infusion_D7sorted_CD3E_CD4_CD8A_highly_variable_combat_CR_NR.h5ad')
 adata = adata[adata.obs['cell_type'] == 'CD8'].copy()
 adata = adata[adata.obs['leiden_0.9'].isin(['0', '1', '4', '7', '9', '10', '11', '13', '14'])].copy()
@@ -36,13 +35,11 @@ X = adata[:, genes_to_use].X
 X = X.toarray() if not isinstance(X, np.ndarray) else X
 y = np.where(adata.obs['response'].values == 'CR', 0, 1)
 
-# Print dataset dimensions
 print("\nDataset Summary:")
 print(f"Total samples: {X.shape[0]}")
 print(f"Number of features: {X.shape[1]}")
 print(f"Class distribution: {np.bincount(y)}")
 
-# First split into train_val and test
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )

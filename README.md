@@ -8,7 +8,7 @@
 **Purpose:** Identify key resistance markers from single-cell RNA sequencing data
 
 **Methods:**
-* Elastic net to find predictive clusters
+* Logistic Regression to find predictive clusters
 * Differential analysis for variable genes
 * MLP + SHAP for top 20 biomarkers
 * PERMANOVA + XGBoost for final gene pairs

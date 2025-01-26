@@ -1,5 +1,18 @@
+# Python
 *.py linguist-language=Python
+*.ipynb linguist-language=Python
+
+# R files
 *.R linguist-language=R
+*.Rmd linguist-language=R
+
+# Shell scripts
 *.sh linguist-language=Shell
+
+# Jupyter notebooks
 *.ipynb linguist-detectable=true
 *.ipynb linguist-documentation=false
+
+# Documentation
+*.md linguist-documentation=true
+README.md linguist-documentation=true

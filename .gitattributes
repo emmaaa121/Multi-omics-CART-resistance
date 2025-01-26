@@ -1,0 +1,5 @@
+*.py linguist-language=Python
+*.R linguist-language=R
+*.sh linguist-language=Shell
+*.ipynb linguist-detectable=true
+*.ipynb linguist-documentation=false
